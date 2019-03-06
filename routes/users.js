@@ -2,12 +2,13 @@ var express = require('express');
 var router = express.Router();
 const ngrok = require('ngrok');
 
-var currentCallingNumber = "+"
+var currentCallingNumber = "12345678901"
 
 // These are Ankur's
 const accountSid = 'ACdc94f86bec1e788b280632d85ea8ace5'; //Find these in your Twilio profile, https://www.twilio.com/console
 const authToken = 'f504ba0bf8cbee3d8891307393512f44';
 const twilioClient = require('twilio')(accountSid, authToken);
+const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
 
 var mongoose = require('mongoose');
@@ -75,11 +76,11 @@ router.post('/addUser', function(req, res, next) {
 });
 
 
-router.get('/twiML', function(req, res, next) {
-	const twiml = new twilioClient.twiml.VoiceResponse();
+router.use('/twiML', async function(req, res, next) {
+	var twiml = new VoiceResponse();
     
     const dial = twiml.dial({
-      callerId: '+18317041029',
+      callerId: '+12244123420',
       record: 'record-from-ringing'
     });
 
@@ -88,14 +89,18 @@ router.get('/twiML', function(req, res, next) {
     dial.number(currentCallingNumber);
 
     res.writeHead(200, { 'Content-Type': 'text/xml' });
-    res.end(twiml.toString());
+    var twimlString = twiml.toString();
+    console.log(twimlString);
+    res.end(twimlString);
+  	// await ngrok.disconnect(); let's just keep these open for now...
+
 });
 
 
 router.get('/startCall', async function(req, res, next) {
 
 	try {
-		var ngrokUrl = await ngrok.connect(8000);
+		var ngrokUrl = await ngrok.connect(3000);
 		ngrokUrl = ngrokUrl + "/users/twiML";
 		console.log("ngrok url: " + ngrokUrl);
 	} catch (err) {
@@ -120,7 +125,6 @@ router.get('/startCall', async function(req, res, next) {
 	      .then(call => console.log(call.sid))
 	      .done();
 
-  	await ngrok.disconnect();
   	res.status(200).send("called successfully.");
 
 });
