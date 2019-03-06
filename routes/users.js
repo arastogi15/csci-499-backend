@@ -43,6 +43,7 @@ router.post('/addUser', function(req, res, next) {
 	    firstName: req.body.firstName,
 	    lastName: req.body.lastName,
 	    bio: req.body.bio,
+	    phoneNumber: req.body.phoneNumber,
 	    activePreference: req.body.activePreference,
 	    preferredCallDuration: req.body.preferredCallDuration,
 	    topicsOfInterest: req.body.topicsOfInterest,

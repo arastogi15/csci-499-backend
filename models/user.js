@@ -14,6 +14,10 @@ let userSchema = new mongoose.Schema({
 		required: true,
 		max: 1500
 	},
+	phoneNumber: {
+		type: String,
+		required: true
+	},
 	activePreference: {
 		type: Number,
 		min: 0,
@@ -28,6 +32,11 @@ let userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 		enum: ['Academics', 'Athletics', 'Hobbies', 'Sports', 'Random']
+	},
+	isWaiting: {
+		type: Boolean,
+		required: true,
+		default: false
 	},
 	dateAdded: {
 		type: Date,
