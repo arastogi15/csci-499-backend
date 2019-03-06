@@ -45,7 +45,7 @@ router.post('/addUser', function(req, res, next) {
 	    bio: req.body.bio,
 	    activePreference: req.body.activePreference,
 	    preferredCallDuration: req.body.preferredCallDuration,
-	    topicsOfInterest: req.body.topicsofInterest,
+	    topicsOfInterest: req.body.topicsOfInterest,
 	    dateAdded: new Date()
 	  });
 
@@ -53,6 +53,7 @@ router.post('/addUser', function(req, res, next) {
 
 	user.save(function (err) {
 		if (err) {
+			console.log(err);
 			return handleError(err);
 		}
 	});
