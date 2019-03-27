@@ -92,7 +92,6 @@ router.use('/twiML', async function(req, res, next) {
     var twimlString = twiml.toString();
     console.log(twimlString);
     res.end(twimlString);
-  	// await ngrok.disconnect(); let's just keep these open for now...
 
 });
 
