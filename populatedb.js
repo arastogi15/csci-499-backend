@@ -4,6 +4,7 @@ console.log('This script populates some users your database. Specified database 
 
 // Get arguments passed on command line
 var userArgs = process.argv.slice(2);
+console.log("Db url: " + userArgs);
 /*
 if (!userArgs[0].startsWith('mongodb')) {
     console.log('ERROR: You need to specify a valid mongodb URL as the first argument');
@@ -22,23 +23,33 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
-var Users = []
+var users = []
 
-function authorCreate(first_name, family_name, d_birth, d_death, cb) {
-  authordetail = {first_name:first_name , family_name: family_name }
-  if (d_birth != false) authordetail.date_of_birth = d_birth
-  if (d_death != false) authordetail.date_of_death = d_death
+function userCreate(first_name, last_name, bio, phone_number, active_preference, min_call_time, areas_of_interest, is_waiting) {
+  userdetail = {
+    firstName:first_name , 
+    lastName: last_name,
+    bio:bio,
+    phoneNumber: phone_number,
+    activePreference: active_preference, 
+    preferredCallDuration: min_call_time,
+    topicsOfInterest: areas_of_interest,
+    isWaiting: is_waiting
+    }
   
-  var author = new Author(authordetail);
+
+  
+  
+  var user = new User(userdetail);
        
-  author.save(function (err) {
+  user.save(function (err) {
     if (err) {
       cb(err, null)
       return
     }
-    console.log('New Author: ' + author);
-    authors.push(author)
-    cb(null, author)
+    console.log('New User: ' + user);
+    users.push(user)
+    cb(null, user)
   }  );
 }
 
@@ -50,13 +61,14 @@ function createUsers(cb) {
           // date created and date modified not mentioned here
           userCreate('Test', 'User', 'An enterprising young lad.', '1234567890', 3, 15, 'Academics', false); 
         },
-        ]
+        ])
 }
 
 
 async.series([
     createUsers
 ],
+
 // Optional callback
 function(err, results) {
     if (err) {
