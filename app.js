@@ -7,12 +7,31 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+var dev_db_url = 'mongodb+srv://admin:csci499@cluster0-opfqz.mongodb.net/test?retryWrites=true';
+var mongoDB = process.env.MONGODB_URI || dev_db_url;
+
 var mongoose = require('mongoose');
+mongoose.connect(mongoDB, {useNewUrlParser: true});
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/app-db', {useNewUrlParser: true});
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 var User = require('./models/user') // note that the .js ending is optional
 
+
+var compression = require('compression');
+var helmet = require('helmet');
+
 var app = express();
+
+let port = process.env.PORT;
+if (port == null || port == " ") {
+	port = 8000;
+}
+app.listen(port);
+
+app.use(compression()); //Compress all routes
+app.use(helmet());
 
 
 
