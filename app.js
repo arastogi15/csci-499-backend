@@ -8,13 +8,15 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var dev_db_url = 'mongodb+srv://admin:csci499@cluster0-opfqz.mongodb.net/test?retryWrites=true';
-var mongoDB = process.env.MONGODB_URI || dev_db_url;
+// var mongoDB = process.env.MONGODB_URI || dev_db_url;
+var mongoDB = dev_db_url;
 
 var mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
 mongoose.connect(mongoDB, {useNewUrlParser: true});
+mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 var User = require('./models/user') // note that the .js ending is optional
 
 

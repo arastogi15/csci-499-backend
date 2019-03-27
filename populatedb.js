@@ -25,7 +25,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 var users = []
 
-function userCreate(first_name, last_name, bio, phone_number, active_preference, min_call_time, areas_of_interest, is_waiting) {
+function userCreate(first_name, last_name, bio, phone_number, active_preference, min_call_time, areas_of_interest, is_waiting, cb) {
   userdetail = {
     firstName:first_name , 
     lastName: last_name,
@@ -36,9 +36,7 @@ function userCreate(first_name, last_name, bio, phone_number, active_preference,
     topicsOfInterest: areas_of_interest,
     isWaiting: is_waiting
     }
-  
 
-  
   
   var user = new User(userdetail);
        
@@ -59,9 +57,10 @@ function createUsers(cb) {
     async.series([
         function(callback) {
           // date created and date modified not mentioned here
-          userCreate('Test', 'User', 'An enterprising young lad.', '1234567890', 3, 15, 'Academics', false); 
+          userCreate('Test', 'User', 'An enterprising young lad.', '1234567890', 3, 15, 'Academics', false, callback); 
         },
-        ])
+        ],
+        cb);
 }
 
 
@@ -75,7 +74,7 @@ function(err, results) {
         console.log('FINAL ERR: '+err);
     }
     else {
-        console.log('User Instances: ' + bookinstances);
+        console.log('Users: ' + users);
         
     }
     // All done, disconnect from database
