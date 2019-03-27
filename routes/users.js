@@ -11,9 +11,9 @@ const twilioClient = require('twilio')(accountSid, authToken);
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
 
-var mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/app-db', {useNewUrlParser: true});
+// var mongoose = require('mongoose');
+// mongoose.Promise = global.Promise;
+// mongoose.connect('mongodb://localhost:27017/app-db', {useNewUrlParser: true});
 var User = require('../models/user') // note that the .js ending is optional
 
 
