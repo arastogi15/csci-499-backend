@@ -6,7 +6,7 @@ var currentCallingNumber = "12345678901"
 
 // These are Ankur's
 const accountSid = 'ACdc94f86bec1e788b280632d85ea8ace5'; //Find these in your Twilio profile, https://www.twilio.com/console
-const authToken = 'f504ba0bf8cbee3d8891307393512f44';
+const authToken = process.env.TWILIO_KEY;
 const twilioClient = require('twilio')(accountSid, authToken);
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
@@ -98,14 +98,6 @@ router.use('/twiML', async function(req, res, next) {
 
 router.get('/startCall', async function(req, res, next) {
 
-	try {
-		var ngrokUrl = await ngrok.connect(3000);
-		ngrokUrl = ngrokUrl + "/users/twiML";
-		console.log("ngrok url: " + ngrokUrl);
-	} catch (err) {
-		console.log(err);
-	}
-
 	// I need to write the TwiML to some location that Twilio can see...
 	console.log("Target Number: " + req.query.targetNumber);
 	console.log("Calling Number: " + req.query.callingNumber);
@@ -113,7 +105,7 @@ router.get('/startCall', async function(req, res, next) {
 
 	twilioClient.calls
 	      .create({
-			 url: ngrokUrl,
+			 url: "https://commuter-499.herokuapp.com/users/twiml",
 	         to: req.query.targetNumber,
 	         from: '+12244123420' //Twilio phone number
 	       },
