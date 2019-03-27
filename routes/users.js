@@ -44,7 +44,7 @@ router.post('/addUser', function(req, res, next) {
 		res.status(400).send('Missing body items');
 		return;
 	} 
-	console.log(req.body);
+	// console.log(req.body);
 
 	var user = new User({
 	    firstName: req.body.firstName,
