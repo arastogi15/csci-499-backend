@@ -116,4 +116,21 @@ router.get('/startCall', async function(req, res, next) {
 
 });
 
+
+// toggle the wait status of a user. switches between true/false -- opposite of existing value
+router.get('/toggleWaitStatus', function(req, res, next) {
+	
+	// var userId = req.body.userId;
+	
+	var doc = db.users.findOne({_id: ObjectId("5c9adeb8e8b3091c07b93bf8")})
+	db.users.update(
+	{ _id: ObjectId("5c9adeb8e8b3091c07b93bf8") },
+	{
+		$set: {
+			iswaiting: !doc.isWaiting
+		}
+	})
+
+});
+
 module.exports = router;
