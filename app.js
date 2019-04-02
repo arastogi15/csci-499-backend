@@ -12,8 +12,8 @@ var usersRouter = require('./routes/users');
 var dev_db_url = 'mongodb+srv://admin:csci499@cluster0-opfqz.mongodb.net/test?retryWrites=true';
 var mongoDB = process.env.MONGODB_URI || dev_db_url;
 
-var mongoose = require('mongoose');
-mongoose.connect(mongoDB, {useNewUrlParser: true});
+const mongoose = require('mongoose');
+mongoose.connect(mongoDB, {useNewUrlParser: true, keepAlive: 1});
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -71,4 +71,4 @@ app.use(function(err, req, res, next) {
 
 // what endpoints do I need
 
-module.exports = app;
+module.exports = app

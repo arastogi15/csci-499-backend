@@ -12,6 +12,10 @@ const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
 var User = require('../models/user') // note that the .js ending is optional
 
+const mongoose = require('mongoose');
+
+var ObjectId = mongoose.Types.ObjectId();
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -122,14 +126,17 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 	
 	// var userId = req.body.userId;
 	
-	var doc = db.users.findOne({_id: ObjectId("5c9adeb8e8b3091c07b93bf8")})
+	var doc = User.findOne({_id: ObjectId("5c9adeb8e8b3091c07b93bf8")})
 	db.users.update(
 	{ _id: ObjectId("5c9adeb8e8b3091c07b93bf8") },
 	{
 		$set: {
 			iswaiting: !doc.isWaiting
 		}
-	})
+	});
+
+	var doc = User.findOne({_id: ObjectId("5c9adeb8e8b3091c07b93bf8")})
+	res.status(200).send("waiting status modified to: " + doc.isWaiting);
 
 });
 
