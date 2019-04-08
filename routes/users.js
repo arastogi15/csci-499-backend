@@ -125,8 +125,8 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 	
 	// var userId = req.body.userId;
 	
-	User.findOne({_id: req.query.id}, function (err, user) {
-		if (err) {
+	User.findById(req.query.id, function (err, user) {
+		if (err || user == null) {
 			res.status(404).send('Error: user not found.');
 		}
 		
