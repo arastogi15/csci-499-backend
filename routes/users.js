@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-const ngrok = require('ngrok');
 
 var currentCallingNumber = "12345678901"
 
@@ -90,7 +89,7 @@ router.use('/login', async function (req, res, next) {
 		return res.status(400).send("The password is invalid.");
 	}
 
-	return res.status(200).send(user._id);
+	return res.status(200).send(user);
 });
 
 
