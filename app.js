@@ -6,14 +6,14 @@ var logger = require('morgan');
 
 require('dotenv').config();
 
+// config for db connection info
+const config = require('../config');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-var dev_db_url = 'mongodb+srv://admin:csci499@cluster0-opfqz.mongodb.net/test?retryWrites=true';
-var mongoDB = process.env.MONGODB_URI || dev_db_url;
-
 const mongoose = require('mongoose');
-mongoose.connect(mongoDB, {useNewUrlParser: true, keepAlive: 1});
+mongoose.connect(config.db.url, {useNewUrlParser: true, keepAlive: 1});
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -26,12 +26,6 @@ var compression = require('compression');
 var helmet = require('helmet');
 
 var app = express();
-
-let port = process.env.PORT;
-if (port == null || port == " ") {
-	port = 8000;
-}
-app.listen(port);
 
 app.use(compression()); //Compress all routes
 app.use(helmet());
@@ -69,6 +63,11 @@ app.use(function(err, req, res, next) {
 
 
 
+let port = process.env.PORT;
+if (port == null || port == " ") {
+	port = 8000;
+}
+app.listen(port);
 // what endpoints do I need
 
 module.exports = app
