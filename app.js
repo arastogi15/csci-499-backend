@@ -7,7 +7,7 @@ var logger = require('morgan');
 require('dotenv').config();
 
 // config for db connection info
-const config = require('../config');
+const config = require('./config');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

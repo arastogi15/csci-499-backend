@@ -127,12 +127,12 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 	
 	// var userId = req.body.userId;
 	
-	User.findOne({_id: ObjectId("5c9adeb8e8b3091c07b93bf8")}, function (err, user) {
+	User.findById('5c9adeb8e8b3091c07b93bf8', function (err, user) {
 		user.isWaiting = !user.isWaiting
 
 		user.save(function (err) {
 			if(err) {
-				console.error('Error togglin wait status of user:' user._id)
+				console.error('Error toggling wait status of user:' + user._id)
 			}
 		});
 		res.status(200).send("waiting status modified to: " + user.isWaiting);
