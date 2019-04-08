@@ -13,6 +13,7 @@ const VoiceResponse = require('twilio').twiml.VoiceResponse;
 var User = require('../models/user') // note that the .js ending is optional
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 
 /* GET users listing. */
@@ -49,7 +50,11 @@ router.post('/addUser', function(req, res, next) {
 	} 
 	// console.log(req.body);
 
+	req.body.password = bcrypt.hashSync(req.body.password, 10);
+
 	var user = new User({
+	    userName: req.body.userName,
+	    password: req.body.password,
 	    firstName: req.body.firstName,
 	    lastName: req.body.lastName,
 	    bio: req.body.bio,
@@ -72,6 +77,20 @@ router.post('/addUser', function(req, res, next) {
 	res.send('Thanks for posting!');
 	// var user = new User({
 	// });
+});
+
+
+router.use('/login', async function (req, res, next) {
+	var user = await User.findOne({userName: req.query.userName}).exec();
+	if (!user) {
+		return res.status(404).send("Error: user not found.");
+	}
+
+	if (!bcrypt.compareSync(req.query.password, user.password)) {
+		return res.status(400).send("The password is invalid.");
+	}
+
+	return res.status(200).send(user._id);
 });
 
 
@@ -122,8 +141,6 @@ router.get('/startCall', async function(req, res, next) {
 
 // toggle the wait status of a user. switches between true/false -- opposite of existing value
 router.get('/toggleWaitStatus', function(req, res, next) {
-	
-	// var userId = req.body.userId;
 	
 	User.findById(req.query.id, function (err, user) {
 		if (err || user == null) {

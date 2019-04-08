@@ -13,6 +13,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs')
 mongoose.connect(config.db.url, {useNewUrlParser: true, keepAlive: 1});
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
