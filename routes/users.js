@@ -128,13 +128,14 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 	User.findById(req.query.id, function (err, user) {
 		if (err || user == null) {
 			res.status(404).send('Error: user not found.');
+			return;
 		}
 		
 		user.isWaiting = !user.isWaiting
 
 		user.save(function (err) {
 			if(err) {
-				console.error('Error toggling wait status of user:' + user._id)
+				console.error('Error toggling wait status of user.')
 			}
 		});
 		res.status(200).send("Waiting status of " + user.firstName + " " + user.lastName + " modified to: " + user.isWaiting);
