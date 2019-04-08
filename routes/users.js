@@ -14,8 +14,6 @@ var User = require('../models/user') // note that the .js ending is optional
 
 const mongoose = require('mongoose');
 
-var ObjectId = mongoose.Types.ObjectId();
-
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -127,7 +125,11 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 	
 	// var userId = req.body.userId;
 	
-	User.findById('5c9adeb8e8b3091c07b93bf8', function (err, user) {
+	User.findOne({_id: req.query.id}, function (err, user) {
+		if (err) {
+			res.status(404).send('Error: user not found.');
+		}
+		
 		user.isWaiting = !user.isWaiting
 
 		user.save(function (err) {
@@ -135,7 +137,7 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 				console.error('Error toggling wait status of user:' + user._id)
 			}
 		});
-		res.status(200).send("waiting status modified to: " + user.isWaiting);
+		res.status(200).send("Waiting status of " + user.firstName + " " + user.lastName + " modified to: " + user.isWaiting);
 	})
 	
 
