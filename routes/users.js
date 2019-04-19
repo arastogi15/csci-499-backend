@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var waitingUsers = require("../data.js"); // I think this is the right syntax for this
 
 var currentCallingNumber = "12345678901"
 
@@ -119,12 +120,19 @@ router.use('/twiML', async function(req, res, next) {
 });
 
 
-router.get('/startCall', async function(req, res, next) {
-	startCall(req, req, next);
+router.post('/startCall', async function(req, res, next) {
+	try {
+		startCall(req.body.targetNumber, req.body.callingNumber);	
+		res.status(200).send("called successfully.");
+	} catch(err) {
+		res.status(400).send("Error -- failed to call.");
+	}
+	
 });
 
-// Note -- I think this will work... 
-async function startCall(req, res, next) {
+// NOTE: I think this will work... 
+// NOTE: Think this is the right structure...
+async function startCall(targetNumber, callingNumber) {
 	// I need to write the TwiML to some location that Twilio can see...
 	console.log("Target Number: " + req.query.targetNumber);
 	console.log("Calling Number: " + req.query.callingNumber);
@@ -137,6 +145,9 @@ async function startCall(req, res, next) {
 	         from: '+12244123420' //Twilio phone number
 	       },
 			  (err, call) => {
+			  	if (err) {
+			  		throw(err);
+			  	}
 			    process.stdout.write(call.sid);
 			  }
 	       )
@@ -179,17 +190,61 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 			return;
 		}
 		
-		user.isWaiting = !user.isWaiting
+		user.isWaiting = !user.isWaiting;
 
 		user.save(function (err) {
 			if(err) {
 				console.error('Error toggling wait status of user.')
 			}
 		});
+		
+		// if the user is now, add them to the queue
+		if (user.isWaiting) {
+			waitingUsers.push(user.phoneNumber);
+		}
 		res.status(200).send("Waiting status of " + user.firstName + " " + user.lastName + " modified to: " + user.isWaiting);
-	})
+
+	});
 	
 
 });
+
+
+// this should run every minute...
+/*
+	Ok, so whenever a user switches their waiting status in the database, I want to add them to the queue of waiting users...
+		... which is an array I'm storing in memory
+		... and users should probably default to "off" when they login.
+		... which means that they should only be added to the queue when they hit the endpoint..
+		... so I probably shouldn't maintain this as a field of the users
+		... instead, I should just keep it in memory
+		... and I should probably keep phone numbers as the user ID tokens...
+
+		... so when someone hits the endpoint, just add their number to the queue
+		.. and then every minute, if tehre are two people in the queue, just start a call between them...
+*/
+
+var j = nodeSchedule.scheduleJob('* * * * *', function() {
+  console.log("Executing call CRON job...")
+  // execute while there are at least two peeps in teh waitingUsers queue...
+  while (waitingUsers.length >= 2) {
+  	var phoneNumberOne = waitingUsers.shift();
+  	var phoneNumberTwo = waitingUsers.shift();
+
+  	try {
+  		console.log("Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
+  		startCall(phoneNumberOne, phoneNumberTwo);
+  	} catch {
+  		// error message and re-add them to db
+  		console.log("Failed to call successfully. Adding numbers back to queue...")
+  		waitingUsers.push(phoneNumberOne);
+  		waitingUsers.push(phoneNumberTwo);
+  	}
+
+  }
+
+ 
+});
+
 
 module.exports = router;
