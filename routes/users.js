@@ -120,7 +120,11 @@ router.use('/twiML', async function(req, res, next) {
 
 
 router.get('/startCall', async function(req, res, next) {
+	startCall(req, req, next);
+});
 
+// Note -- I think this will work... 
+async function startCall(req, res, next) {
 	// I need to write the TwiML to some location that Twilio can see...
 	console.log("Target Number: " + req.query.targetNumber);
 	console.log("Calling Number: " + req.query.callingNumber);
@@ -186,12 +190,6 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 	})
 	
 
-});
-
-// ever 5 minutes, see if there are 2 free users in the queue. if so, initiate a call with each other...
-var j = nodeSchedule.scheduleJob('00 8 * * *', function() {
-  
-  
 });
 
 module.exports = router;
