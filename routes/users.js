@@ -188,4 +188,10 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 
 });
 
+// ever 5 minutes, see if there are 2 free users in the queue. if so, initiate a call with each other...
+var j = nodeSchedule.scheduleJob('00 8 * * *', function() {
+  
+  
+});
+
 module.exports = router;
