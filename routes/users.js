@@ -79,13 +79,13 @@ router.post('/addUser', function(req, res, next) {
 });
 
 
-router.use('/login', async function (req, res, next) {
-	var user = await User.findOne({userName: req.query.userName}).exec();
+router.post('/login', async function (req, res, next) {
+	var user = await User.findOne({userName: req.body.userName}).exec();
 	if (!user) {
 		return res.status(404).send("Error: user not found.");
 	}
 
-	if (!bcrypt.compareSync(req.query.password, user.password)) {
+	if (!bcrypt.compareSync(req.body.password, user.password)) {
 		return res.status(400).send("The password is invalid.");
 	}
 
