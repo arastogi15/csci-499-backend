@@ -73,9 +73,11 @@ router.post('/addUser', function(req, res, next) {
 		}
 	});
 	
-	res.send('Thanks for posting!');
-	// var user = new User({
-	// });
+	// TODO: will need to change this so I can retrieve the entire user object with the ID as well
+	// res.status(200).send("Successfully added a user.");
+	
+	res.status(200).send(user);
+
 });
 
 
@@ -133,7 +135,29 @@ router.get('/startCall', async function(req, res, next) {
 	      .then(call => console.log(call.sid))
 	      .done();
 
-  	res.status(200).send("called successfully.");
+  	res.status(200).send("Called successfully.");
+
+});
+
+
+router.get('/getUser', async function(req, res, next) {
+
+	// I need to write the TwiML to some location that Twilio can see...
+	
+	console.log("User ID: " + req.query.id);
+
+	User.findById(req.query.id, function (err, user) {
+		if (err || user == null) {
+			res.status(404).send('Error: user not found.');
+			return;
+		}
+
+		// send user object back to frontend
+		res.status(200).send(user);
+	})
+
+
+  	// res.status(200).send("called successfully.");
 
 });
 
