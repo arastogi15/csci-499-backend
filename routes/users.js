@@ -49,6 +49,9 @@ router.post('/addUser', function(req, res, next) {
 	} 
 	// console.log(req.body);
 
+
+
+
 	req.body.password = bcrypt.hashSync(req.body.password, 10);
 
 	var user = new User({
@@ -82,6 +85,7 @@ router.post('/addUser', function(req, res, next) {
 
 
 router.post('/login', async function (req, res, next) {
+	console.log("Logging in with userName: " + req.body.userName);
 	var user = await User.findOne({userName: req.body.userName}).exec();
 	if (!user) {
 		return res.status(404).send("Error: user not found.");
