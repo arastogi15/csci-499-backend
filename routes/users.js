@@ -200,6 +200,9 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 		if (user.isWaiting) {
 			waitingUsers.push(user.phoneNumber);
 		}
+		if (!user.isWaiting) {
+			waitingUsers.remove(user.phoneNumber);
+		}
 		res.status(200).send("Waiting status of " + user.firstName + " " + user.lastName + " modified to: " + user.isWaiting);
 
 	});
@@ -231,7 +234,7 @@ router.get('/addTestUserToWaitingList', function(req, res, next) {
 		.. and then every minute, if tehre are two people in the queue, just start a call between them...
 */
 
-var j = nodeSchedule.scheduleJob('* * * * * *', function() {
+var j = nodeSchedule.scheduleJob('* * * * *', function() {
   console.log(Date.now() + ": Executing call CRON job...")
   console.log(waitingUsers);
   // execute while there are at least two peeps in teh waitingUsers queue...
@@ -253,6 +256,8 @@ var j = nodeSchedule.scheduleJob('* * * * * *', function() {
 
  
 });
+
+
 
 
 module.exports = router;
