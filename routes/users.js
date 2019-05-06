@@ -1,5 +1,9 @@
 var express = require('express');
+var nodeSchedule = require('node-schedule');
 var router = express.Router();
+var devMode = process.env.DEV_MODE;
+// var waitingUsers = require("../data.js"); // I think this is the right syntax for this
+waitingUsers = [];
 
 var currentCallingNumber = "12345678901"
 
@@ -13,11 +17,12 @@ var User = require('../models/user') // note that the .js ending is optional
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+console.log(process.env.DEV_MODE);
 
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  res.status(200).send("User API Base");
 });
 
 router.get('/addBob', function(req, res, next) {
@@ -47,10 +52,6 @@ router.post('/addUser', function(req, res, next) {
 		res.status(400).send('Missing body items');
 		return;
 	} 
-	// console.log(req.body);
-
-
-
 
 	req.body.password = bcrypt.hashSync(req.body.password, 10);
 
@@ -119,29 +120,40 @@ router.use('/twiML', async function(req, res, next) {
 });
 
 
-router.get('/startCall', async function(req, res, next) {
+router.post('/startCall', async function(req, res, next) {
+	try {
+		startCall(req.body.targetNumber, req.body.callingNumber);	
+		res.status(200).send("called successfully.");
+	} catch(err) {
+		res.status(400).send("Error -- failed to call.");
+	}
+	
+});
 
+// NOTE: I think this will work... 
+// NOTE: Think this is the right structure...
+async function startCall(targetNumber, callingNumber) {
 	// I need to write the TwiML to some location that Twilio can see...
-	console.log("Target Number: " + req.query.targetNumber);
-	console.log("Calling Number: " + req.query.callingNumber);
-	currentCallingNumber = req.query.callingNumber;
+	console.log("Target Number: " + targetNumber);
+	console.log("Calling Number: " + callingNumber);
+	currentCallingNumber = callingNumber;
 
 	twilioClient.calls
 	      .create({
 			 url: "https://commuter-499.herokuapp.com/users/twiml",
-	         to: req.query.targetNumber,
+	         to: targetNumber,
 	         from: '+12244123420' //Twilio phone number
 	       },
 			  (err, call) => {
+			  	if (err) {
+			  		throw(err);
+			  	}
 			    process.stdout.write(call.sid);
 			  }
 	       )
 	      .then(call => console.log(call.sid))
 	      .done();
-
-  	res.status(200).send("Called successfully.");
-
-});
+}
 
 
 router.get('/getUser', async function(req, res, next) {
@@ -175,17 +187,89 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 			return;
 		}
 		
-		user.isWaiting = !user.isWaiting
+		user.isWaiting = !user.isWaiting;
 
 		user.save(function (err) {
 			if(err) {
 				console.error('Error toggling wait status of user.')
 			}
 		});
+		
+		// if the user is now, add them to the queue
+		if (user.isWaiting) {
+			waitingUsers.push(user.phoneNumber);
+		}
+		if (!user.isWaiting) {
+			waitingUsers.remove(user.phoneNumber);
+		}
 		res.status(200).send("Waiting status of " + user.firstName + " " + user.lastName + " modified to: " + user.isWaiting);
-	})
+
+	});
 	
 
 });
+
+
+// toggle the wait status of a user. switches between true/false -- opposite of existing value
+router.get('/addTestUserToWaitingList', function(req, res, next) {
+	console.log("Adding test user to waitlist...");
+	console.log(waitingUsers);
+	waitingUsers.push('' + Math.floor(Math.random() * 1000000000));
+	res.status(200).send(waitingUsers);
+});
+
+
+// this should run every minute...
+/*
+	Ok, so whenever a user switches their waiting status in the database, I want to add them to the queue of waiting users...
+		... which is an array I'm storing in memory
+		... and users should probably default to "off" when they login.
+		... which means that they should only be added to the queue when they hit the endpoint..
+		... so I probably shouldn't maintain this as a field of the users
+		... instead, I should just keep it in memory
+		... and I should probably keep phone numbers as the user ID tokens...
+
+		... so when someone hits the endpoint, just add their number to the queue
+		.. and then every minute, if tehre are two people in the queue, just start a call between them...
+*/
+
+var j = nodeSchedule.scheduleJob('* * * * *', function() {
+  console.log(Date.now() + ": Executing call CRON job...")
+  console.log(waitingUsers);
+
+
+	for (let i = waitingUsers.length - 1; i > 0; i--) {
+	    const j = Math.floor(Math.random() * (i + 1));
+	    [waitingUsers[i], waitingUsers[j]] = [waitingUsers[j], waitingUsers[i]];
+	}
+
+  // execute while there are at least two peeps in teh waitingUsers queue...
+  while (waitingUsers.length >= 2) {
+  	var phoneNumberOne = waitingUsers.shift();
+  	var phoneNumberTwo = waitingUsers.shift();
+
+  	try {
+  		if (devMode == "DEVELOP") {
+  			console.log("[DEV ] Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
+  		}
+  		if (devMode == "PRODUCTION") {
+  			console.log("[PROD] Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
+  			startCall(phoneNumberOne, phoneNumberTwo);	
+  		}
+  		
+  	} catch {
+  		// error message and re-add them to db
+  		console.log("Failed to call successfully. Adding numbers back to queue...")
+  		waitingUsers.push(phoneNumberOne);
+  		waitingUsers.push(phoneNumberTwo);
+  	}
+
+  }
+
+ 
+});
+
+
+
 
 module.exports = router;
