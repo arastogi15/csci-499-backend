@@ -246,7 +246,7 @@ router.get('/addTestUserToWaitingList', function(req, res, next) {
 		.. and then every minute, if tehre are two people in the queue, just start a call between them...
 */
 
-var j = nodeSchedule.scheduleJob('* * * * *', function() {
+var j = nodeSchedule.scheduleJob('10 * * * * *', function() {
   console.log(Date.now() + ": Executing call CRON job...")
   console.log(waitingUsers);
 
