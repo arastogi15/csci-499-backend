@@ -16,6 +16,7 @@ var User = require('../models/user') // note that the .js ending is optional
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+console.log(process.env.DEV_MODE);
 
 
 /* GET users listing. */
@@ -247,7 +248,6 @@ var j = nodeSchedule.scheduleJob('* * * * *', function() {
   	var phoneNumberTwo = waitingUsers.shift();
 
   	try {
-  		console.log("[TEST} Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
   		if (process.env.DEV_MODE == "DEVELOP") {
   			console.log("[DEV ] Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
   		}
