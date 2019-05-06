@@ -100,6 +100,11 @@ router.post('/login', async function (req, res, next) {
 });
 
 
+router.get('/getWaitingUsers', async function (req, res, next) {
+	res.status(200).send(waitingUsers);
+});
+
+
 router.use('/twiML', async function(req, res, next) {
 	var twiml = new VoiceResponse();
     
