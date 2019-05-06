@@ -1,6 +1,8 @@
 var express = require('express');
+var nodeSchedule = require('node-schedule');
 var router = express.Router();
-var waitingUsers = require("../data.js"); // I think this is the right syntax for this
+// var waitingUsers = require("../data.js"); // I think this is the right syntax for this
+waitingUsers = [];
 
 var currentCallingNumber = "12345678901"
 
@@ -18,7 +20,7 @@ const bcrypt = require('bcryptjs');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  res.status(200).send("User API Base");
 });
 
 router.get('/addBob', function(req, res, next) {
@@ -48,10 +50,6 @@ router.post('/addUser', function(req, res, next) {
 		res.status(400).send('Missing body items');
 		return;
 	} 
-	// console.log(req.body);
-
-
-
 
 	req.body.password = bcrypt.hashSync(req.body.password, 10);
 
@@ -156,7 +154,7 @@ async function startCall(targetNumber, callingNumber) {
 
   	res.status(200).send("Called successfully.");
 
-});
+}
 
 
 router.get('/getUser', async function(req, res, next) {
@@ -210,6 +208,15 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 });
 
 
+// toggle the wait status of a user. switches between true/false -- opposite of existing value
+router.get('/addTestUserToWaitingList', function(req, res, next) {
+	console.log("Adding test user to waitlist...");
+	console.log(waitingUsers);
+	waitingUsers.push('' + Math.floor(Math.random() * 1000000000));
+	res.status(200).send(waitingUsers);
+});
+
+
 // this should run every minute...
 /*
 	Ok, so whenever a user switches their waiting status in the database, I want to add them to the queue of waiting users...
@@ -224,16 +231,17 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 		.. and then every minute, if tehre are two people in the queue, just start a call between them...
 */
 
-var j = nodeSchedule.scheduleJob('* * * * *', function() {
-  console.log("Executing call CRON job...")
+var j = nodeSchedule.scheduleJob('* * * * * *', function() {
+  console.log(Date.now() + ": Executing call CRON job...")
+  console.log(waitingUsers);
   // execute while there are at least two peeps in teh waitingUsers queue...
   while (waitingUsers.length >= 2) {
   	var phoneNumberOne = waitingUsers.shift();
   	var phoneNumberTwo = waitingUsers.shift();
 
   	try {
-  		console.log("Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
-  		startCall(phoneNumberOne, phoneNumberTwo);
+  		console.log("[TEST} Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
+  		// startCall(phoneNumberOne, phoneNumberTwo);
   	} catch {
   		// error message and re-add them to db
   		console.log("Failed to call successfully. Adding numbers back to queue...")
