@@ -132,14 +132,14 @@ router.post('/startCall', async function(req, res, next) {
 // NOTE: Think this is the right structure...
 async function startCall(targetNumber, callingNumber) {
 	// I need to write the TwiML to some location that Twilio can see...
-	console.log("Target Number: " + req.query.targetNumber);
-	console.log("Calling Number: " + req.query.callingNumber);
-	currentCallingNumber = req.query.callingNumber;
+	console.log("Target Number: " + targetNumber);
+	console.log("Calling Number: " + callingNumber);
+	currentCallingNumber = callingNumber;
 
 	twilioClient.calls
 	      .create({
 			 url: "https://commuter-499.herokuapp.com/users/twiml",
-	         to: req.query.targetNumber,
+	         to: targetNumber,
 	         from: '+12244123420' //Twilio phone number
 	       },
 			  (err, call) => {
@@ -151,9 +151,6 @@ async function startCall(targetNumber, callingNumber) {
 	       )
 	      .then(call => console.log(call.sid))
 	      .done();
-
-  	res.status(200).send("Called successfully.");
-
 }
 
 
@@ -237,6 +234,13 @@ router.get('/addTestUserToWaitingList', function(req, res, next) {
 var j = nodeSchedule.scheduleJob('* * * * *', function() {
   console.log(Date.now() + ": Executing call CRON job...")
   console.log(waitingUsers);
+
+
+	for (let i = waitingUsers.length - 1; i > 0; i--) {
+	    const j = Math.floor(Math.random() * (i + 1));
+	    [waitingUsers[i], waitingUsers[j]] = [waitingUsers[j], waitingUsers[i]];
+	}
+
   // execute while there are at least two peeps in teh waitingUsers queue...
   while (waitingUsers.length >= 2) {
   	var phoneNumberOne = waitingUsers.shift();
@@ -244,7 +248,14 @@ var j = nodeSchedule.scheduleJob('* * * * *', function() {
 
   	try {
   		console.log("[TEST} Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
-  		// startCall(phoneNumberOne, phoneNumberTwo);
+  		if (process.env.DEV_MODE == "DEVELOP") {
+  			console.log("[DEV ] Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
+  		}
+  		if (process.env.DEV_MODE == "PRODUCTION") {
+  			console.log("[PROD] Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
+  			startCall(phoneNumberOne, phoneNumberTwo);	
+  		}
+  		
   	} catch {
   		// error message and re-add them to db
   		console.log("Failed to call successfully. Adding numbers back to queue...")
