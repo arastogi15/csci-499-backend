@@ -1,6 +1,7 @@
 var express = require('express');
 var nodeSchedule = require('node-schedule');
 var router = express.Router();
+var devMode = process.env.DEV_MODE;
 // var waitingUsers = require("../data.js"); // I think this is the right syntax for this
 waitingUsers = [];
 
@@ -248,10 +249,10 @@ var j = nodeSchedule.scheduleJob('* * * * *', function() {
   	var phoneNumberTwo = waitingUsers.shift();
 
   	try {
-  		if (process.env.DEV_MODE == "DEVELOP") {
+  		if (devMode == "DEVELOP") {
   			console.log("[DEV ] Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
   		}
-  		if (process.env.DEV_MODE == "PRODUCTION") {
+  		if (devMode == "PRODUCTION") {
   			console.log("[PROD] Calling " + phoneNumberOne + " <> " + phoneNumberTwo);
   			startCall(phoneNumberOne, phoneNumberTwo);	
   		}
