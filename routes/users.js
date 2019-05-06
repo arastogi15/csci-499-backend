@@ -200,7 +200,10 @@ router.get('/toggleWaitStatus', function(req, res, next) {
 			waitingUsers.push(user.phoneNumber);
 		}
 		if (!user.isWaiting) {
-			waitingUsers.remove(user.phoneNumber);
+			// waitingUsers.remove(user.phoneNumber);
+			waitingUsers.splice(waitingUsers.indexOf(user.phoneNumber), 1)
+			// list.splice( list.indexOf('foo'), 1 );
+
 		}
 		res.status(200).send("Waiting status of " + user.firstName + " " + user.lastName + " modified to: " + user.isWaiting);
 
