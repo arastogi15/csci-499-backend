@@ -116,6 +116,10 @@ router.use('/twiML', async function(req, res, next) {
     //srource for DIAL https://www.twilio.com/docs/voice/twiml/dial#record
 
     dial.number(currentCallingNumber);
+    twiml.say({
+    voice: 'woman',
+	}, 
+	'Thank you for using Roadtrip! Make sure to introduce yourself and get to know your fellow Roadtripper. Enjoy your conversation!');
 
     res.writeHead(200, { 'Content-Type': 'text/xml' });
     var twimlString = twiml.toString();
